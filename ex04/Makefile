@@ -1,11 +1,11 @@
-NAME := un_violence
+NAME := sed_is_for_losers
 CC := c++
 INC := -I.
 CFLAGS := -Wall -Werror -Wextra -std=c++98 $(INC)
 
-SRC := main.cpp HumanA.cpp Weapon.cpp HumanB.cpp
+SRC := main.cpp
 OBJ := $(SRC:.cpp=.o)
-HEADERS := HumanA.hpp HumanB.hpp Weapon.hpp
+HEADERS :=
 
 all: $(NAME)
 
