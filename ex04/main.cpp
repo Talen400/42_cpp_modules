@@ -2,6 +2,23 @@
 #include <fstream>
 #include <string>
 
+std::string	replace(const std::string& content, const std::string& s1, const std::string& s2)
+{
+	std::string result;
+	size_t		pos;
+	size_t		found;
+
+	pos = 0;
+	while ((found = content.find(s1, pos)) != std::string::npos)
+	{
+		result += content.substr(pos, found - pos);
+		result += s2;
+		pos = found + s1.size();
+	}
+	result +=  content.substr(pos);
+	return result;
+}
+
 int	main(int argc, char **argv)
 {
 	if (argc != 4)
@@ -25,6 +42,7 @@ int	main(int argc, char **argv)
 	if (!ostrm.is_open())
 	{
 		std::cerr << "Error Outfile \n";
+		istrm.close();
 		return (1);
 	}
 	/* range (7)
@@ -39,14 +57,11 @@ int	main(int argc, char **argv)
 	 * std::istreambuf_iterator<char>() => end of string
 	 */
 
-	std::string content(); 
+	std::string content((std::istreambuf_iterator<char>(istrm)), std::istreambuf_iterator<char>());
+
+	ostrm << replace(content, s1, s2);
+	ostrm.close();
+	istrm.close();
 	return (0);
 }
 
-
-
-/*
- * argv[2] => filename
- * filename => argv[3]
- *
- */
