@@ -5,7 +5,7 @@ CFLAGS := -Wall -Werror -Wextra -std=c++98 $(INC)
 
 SRC := main.cpp newZombie.cpp randomChump.cpp Zombie.cpp
 OBJ := $(SRC:.cpp=.o)
-HEADERS :=
+HEADERS := Zombie.h Zombie.hpp
 
 all: $(NAME)
 
