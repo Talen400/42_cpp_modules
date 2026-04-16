@@ -1,29 +1,19 @@
 #include "ClapTrap.hpp"
 
-ClapTrap::ClapTrap() 
+ClapTrap::ClapTrap(): _name("Default"), _hitPoint(10), _energyPoint(10), _attackDamage(0)
 {
-	_name = "Default";
-	_hitPoint = 10;
-	_energyPoint = 10;
-	_attackDamage = 0;
 	std::cout << "ClapTrap '" << _name << "' is clap!" << std::endl;
 }
 
-ClapTrap::ClapTrap(const std::string &name)
+ClapTrap::ClapTrap(const std::string &name): _name(name), _hitPoint(10), _energyPoint(10), _attackDamage(0)
+
 {
-	_name = name;
-	_hitPoint = 10;
-	_energyPoint = 10;
-	_attackDamage = 0;
 	std::cout << "Claptrap '" << _name << "' is clap!" << std::endl;
 }
 
 ClapTrap::ClapTrap(const ClapTrap &other)
 {
-	_name = other._name;
-	_hitPoint = other._hitPoint;
-	_energyPoint = other._energyPoint;
-	_attackDamage = other._attackDamage;
+	*this = other;
 	std::cout << "Claptrap '" << _name << "' is clap from other!" << std::endl;
 }
 
@@ -99,7 +89,7 @@ void	ClapTrap::beRepaired(unsigned int amount)
 
 void	ClapTrap::printStatus() const
 {
-	std::cout << _name << " status:" << std::endl
+	std::cout << "ClapTrap " << _name << " status:" << std::endl
 			  << "hitPoints: " << _hitPoint << std::endl
 			  << "energyPoints: " << _energyPoint << std::endl
 			  << "attackDamage: " << _attackDamage << std::endl;
