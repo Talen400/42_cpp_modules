@@ -1,4 +1,4 @@
-NAME := brain
+NAME := abstract
 CC := c++
 CFLAGS := -Wall -Werror -Wextra -std=c++98 -I.
 
