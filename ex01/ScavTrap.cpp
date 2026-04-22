@@ -82,5 +82,6 @@ void	ScavTrap::printStatus() const
 	std::cout << "ScavTrap " << _name << " status:" << std::endl
 			  << "hitPoints: " << _hitPoint << std::endl
 			  << "energyPoints: " << _energyPoint << std::endl
-			  << "attackDamage: " << _attackDamage << std::endl;
+			  << "attackDamage: " << _attackDamage << std::endl
+			  << "stateGuard: " << (_guard ? "TRUE" : "FALSE") << std::endl;
 }
