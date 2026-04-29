@@ -4,9 +4,14 @@
 #include "Cat.hpp"
 #include "Dog.hpp"
 
+static void	separator(const std::string &label)
+{
+	std::cout << "\n=== " << label << " ===" << std::endl;
+}
+
 int	main(void)
 {
-	std::cout << "Hello World!" << std::endl;
+	separator("Without Animal concrete");
 	{
 		const Animal* j = new Dog();
 		const Animal* i = new Cat();

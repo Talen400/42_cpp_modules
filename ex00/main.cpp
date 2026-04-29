@@ -5,8 +5,14 @@
 #include "WrongAnimal.hpp"
 #include "WrongCat.hpp"
 
+static void	separator(const std::string &label)
+{
+	std::cout << "\n=== " << label << " ===" << std::endl;
+}
+
 int	main(void)
 {
+	separator("Animal - Orthodox Canonical Form");
 	{
 		Animal	a;
 		Animal	b(a);
@@ -14,7 +20,9 @@ int	main(void)
 
 		c = b;
 		c.makeSound();
+		std::cout << (&a == &b ? "SAME" : "DIFFERENT objects") << std::endl;
 	}
+	separator("Dog - Orthodox Canonical Form");
 	std::cout << std::endl;
 	{
 		Dog	a;
@@ -23,7 +31,9 @@ int	main(void)
 
 		c = b;
 		c.makeSound();
+		std::cout << (&a == &b ? "SAME" : "DIFFERENT objects") << std::endl;
 	}
+	separator("Cat - Orthodox Canonical Form");
 	std::cout << std::endl;
 	{
 		Cat	a;
@@ -32,8 +42,9 @@ int	main(void)
 
 		c = b;
 		c.makeSound();
+		std::cout << (&a == &b ? "SAME" : "DIFFERENT objects") << std::endl;
 	}
-	std::cout << "=TEST="<< std::endl;
+	separator("Polymorphim via Animal pointer");
 	{
 		const Animal* meta = new Animal();
 		const Animal* j = new Dog();
@@ -47,7 +58,7 @@ int	main(void)
 		delete i;
 		delete j;
 	}
-	std::cout << "=TESTE WRONG="<< std::endl;
+	separator("WrongAnimal - no virtual (no polymorphism)");
 	{
 		const WrongAnimal* meta = new WrongAnimal();
 		const WrongAnimal* i = new WrongCat();

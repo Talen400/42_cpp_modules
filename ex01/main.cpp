@@ -5,8 +5,14 @@
 
 #include "helpers.h"
 
+static void	separator(const std::string &label)
+{
+	std::cout << "\n=== " << label << " ===" << std::endl;
+}
+
 int	main(void)
 {
+	separator("Animal - Orthodox Canonical Form");
 	{
 		Animal	a;
 		Animal	b(a);
@@ -14,8 +20,9 @@ int	main(void)
 
 		c = b;
 		c.makeSound();
+		std::cout << (&a == &b ? "SAME" : "DIFFERENT objects") << std::endl;
 	}
-	std::cout << std::endl;
+	separator("Dog - Orthodox Canonical Form");
 	{
 		Dog	a;
 		Dog	b(a);
@@ -25,7 +32,7 @@ int	main(void)
 		c.makeSound();
 		std::cout << (&a == &b ? "SAME" : "DIFFERENT objects") << std::endl;
 	}
-	std::cout << std::endl;
+	separator("Cat - Orthodox Canonical Form");
 	{
 		Cat	a;
 		Cat	b(a);
@@ -47,7 +54,7 @@ int	main(void)
 		delete j;
 		delete i;
 	}
-	std::cout << std::endl;
+	separator("Testing the array");
 	{
 		Animal *animals[4];
 		animals[0] = new Dog();
