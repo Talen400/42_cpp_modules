@@ -33,8 +33,7 @@ class Bureaucrat
 
 		void	downGrade();
 		void	upGrade();
-};
 
-std::ostream	&operator<<(std::ostream &out, const Bureaucrat &b);
+};
 
 #endif

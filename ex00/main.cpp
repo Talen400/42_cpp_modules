@@ -8,8 +8,7 @@ int	main(void)
 		Bureaucrat b(a);
 		Bureaucrat c = b;
 
-		std::cout << c.getGrade() << std::endl;
-		std::cout << c.getName() << std::endl;
+		std::cout << b;
 	}
 	{
 		try
@@ -30,7 +29,7 @@ int	main(void)
 		{
 			Bureaucrat b("grade_150", 150);
 			b.upGrade();
-			std::cout << b.getGrade() << std::endl;
+			std::cout << b;
 		}
 		catch (Bureaucrat::GradeTooHighException &e)
 		{

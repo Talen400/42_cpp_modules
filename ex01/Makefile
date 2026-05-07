@@ -1,4 +1,4 @@
-NAME := bureaucrat
+NAME := form
 CPP := c++
 CFLAGS := -Wall -Werror -Wextra -std=c++98 -I.
 
@@ -17,7 +17,7 @@ $(NAME): $(OBJ)
 clean:
 	rm -f $(OBJ)
 
-fclean: clean
+fclean:
 	rm -f $(NAME)
 
 re: fclean all
