@@ -7,6 +7,10 @@ Bureaucrat::Bureaucrat(): _name("root"), _grade(1)
 
 Bureaucrat::Bureaucrat(const std::string &name, int grade): _name(name), _grade(grade)
 {
+	if (grade < 1)
+		throw GradeTooHighException();
+	if (grade > 150)
+		throw GradeTooLowException();
 	std::cout << "Bureaucrat '" << _name << "' Construction parameter" << std::endl;
 };
 
@@ -42,10 +46,24 @@ int	Bureaucrat::getGrade() const
 
 void	Bureaucrat::downGrade()
 {
+	if (_grade >= 150)
+		throw GradeTooLowException();
 	_grade++;
 }
 
 void	Bureaucrat::upGrade()
 {
+	if (_grade <= 1)
+		throw GradeTooHighException();
 	_grade--;
+}
+
+const char	*Bureaucrat::GradeTooHighException::what() const throw()
+{
+	return ("Grade is too high");
+}
+
+const char	*Bureaucrat::GradeTooLowException::what() const throw()
+{
+	return ("Grade is too low");
 }
