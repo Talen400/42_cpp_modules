@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+class Form;
+
 class Bureaucrat
 {
 	private:
@@ -34,6 +36,7 @@ class Bureaucrat
 		void	downGrade();
 		void	upGrade();
 
+		void	signForm(Form &form);
 };
 
 #endif

@@ -2,18 +2,20 @@
 # define FORM_HPP
 
 #include <iostream>
+#include "Bureaucrat.hpp"
 
 class Form
 {
 	private:
 		const std::string	_name;
 		int		_min_grade;
-		int		_max_grade;
+		int		_min_grade_exec;
 		bool	_sign;
 
 	public:
 		Form();
-		Form(const std::string &name, int min_grade, int max_grade);
+		Form(const std::string &name, int min_grade, int min_grade_exec);
+		Form(const Form &other);
 		Form	&operator=(const Form &other);
 
 		~Form();
@@ -32,9 +34,10 @@ class Form
 
 		std::string	getName() const;
 		int			getMinGrade() const;
-		int			getMaxGrade() const;
+		int			getMinGradeExec() const;
 		bool		getSign() const;
 
+		void		beSigned(Bureaucrat &other);
 };
 
 std::ostream	&operator<<(std::ostream &out, const Form &b);
