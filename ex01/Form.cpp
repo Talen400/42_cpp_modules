@@ -1,6 +1,6 @@
 #include "Form.hpp"
 
-Form::Form(): _sign(false)
+Form::Form(): _name("root"), _min_grade(1), _min_grade_exec(1), _sign(false)
 {
 	std::cout << "Form '" << _name << "' construction default" << std::endl;
 };
@@ -24,7 +24,6 @@ Form	&Form::operator=(const Form &other)
 	{
 		_min_grade = other._min_grade;
 		_min_grade_exec = other._min_grade_exec;
-		//_sign = other._sign; idk its meaning
 		_sign = false;
 	}
 	std::cout << "Form '" << _name << "' Construction from other Bureaucrat" << std::endl;
