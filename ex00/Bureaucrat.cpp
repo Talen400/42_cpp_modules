@@ -5,16 +5,17 @@ Bureaucrat::Bureaucrat(): _name("root"), _grade(1)
 	std::cout << "Bureaucrat '" << _name << "' Construction Default" << std::endl;
 };
 
-Bureaucrat::Bureaucrat(const std::string &name, int grade): _name(name), _grade(grade)
+Bureaucrat::Bureaucrat(const std::string &name, int grade): _name(name)
 {
 	if (grade < 1)
 		throw GradeTooHighException();
 	if (grade > 150)
 		throw GradeTooLowException();
+	_grade = grade;
 	std::cout << "Bureaucrat '" << _name << "' Construction parameter" << std::endl;
 };
 
-Bureaucrat::Bureaucrat(const Bureaucrat &other): _grade(other._grade)
+Bureaucrat::Bureaucrat(const Bureaucrat &other): _name(other._name), _grade(other._grade)
 {
 	std::cout << "Bureaucrat '" << _name << "' Construction from other Bureaucrat" << std::endl;
 };

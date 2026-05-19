@@ -1,4 +1,5 @@
 #include "Form.hpp"
+#include "Bureaucrat.hpp"
 
 Form::Form(): _name("root"), _min_grade(1), _min_grade_exec(1), _sign(false)
 {
@@ -6,8 +7,13 @@ Form::Form(): _name("root"), _min_grade(1), _min_grade_exec(1), _sign(false)
 };
 
 Form::Form(const std::string &name, int min_grade, int min_grade_exec):
-	_name(name), _min_grade(min_grade), _min_grade_exec(min_grade_exec), _sign(false)
+	_name(name), _min_grade_exec(min_grade_exec), _sign(false)
 {
+	if (min_grade < 1)
+		throw GradeTooHighException();
+	if (min_grade > 150)
+		throw GradeTooLowException();
+	_min_grade = min_grade;
 	std::cout << "Form '" << _name << "' Construction parameter" << std::endl;	
 };
 
@@ -54,7 +60,7 @@ void	Form::beSigned(Bureaucrat &other)
 {
 	if (other.getGrade() > _min_grade)
 		throw GradeTooLowException();
-	_sign = !_sign;
+	_sign = true;
 }
 
 std::ostream	&operator<<(std::ostream &out, const Form &b)

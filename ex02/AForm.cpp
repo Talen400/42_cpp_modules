@@ -23,50 +23,15 @@ AForm	&AForm::operator=(const AForm &other)
 	return (*this);
 }
 
-AForm::~AForm()
-{
+AForm::~AForm() {}
 
-}
+std::string	AForm::getName() const { return (_name); }
 
-const char	*AForm::GradeTooLowException::what() const throw()
-{
-	return ("Grade too low!");
-}
+int			AForm::getMinGrade() const { return (_min_grade); }
 
-const char	*AForm::GradeTooHighException::what() const throw()
-{
-	return ("Grade too high!");
-}
+int			AForm::getMinGradeExec() const { return (_min_grade_exec); }
 
-const char	*AForm::FormHasSigned::what() const throw()
-{
-	return ("Form has signed!");
-}
-
-const char	*AForm::FormHasNotSigned::what() const throw()
-{
-	return ("Form has not signed!");
-}
-
-std::string	AForm::getName() const
-{
-	return (_name);
-}
-
-int			AForm::getMinGrade() const
-{
-	return (_min_grade);
-}
-
-int			AForm::getMinGradeExec() const
-{
-	return (_min_grade_exec);
-}
-
-bool		AForm::getSign() const
-{
-	return (_sign);
-}
+bool		AForm::getSign() const { return (_sign); }
 
 void		AForm::beSigned(Bureaucrat const &b)
 {
@@ -75,6 +40,14 @@ void		AForm::beSigned(Bureaucrat const &b)
 	if (_sign)
 		throw FormHasSigned();
 	_sign = true;
+}
+
+void		AForm::checkExecution(Bureaucrat const &executor) const
+{
+	if (!_sign)
+		throw FormHasNotSigned();
+	if (executor.getGrade() > _min_grade_exec)
+		throw GradeTooLowException();
 }
 
 std::ostream	&operator<<(std::ostream &out, const AForm &b)

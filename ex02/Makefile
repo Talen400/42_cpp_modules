@@ -2,9 +2,17 @@ NAME := shrubbery
 CPP := c++
 CFLAGS := -Wall -Werror -Wextra -std=c++98 -I.
 
-SRC := main.cpp
+SRC := main.cpp Bureaucrat.cpp AForm.cpp \
+	   ShrubberyCreationForm.cpp \
+	   PresidentialPardonForm.cpp \
+	   RobotomyRequestForm.cpp
+
 OBJ := $(SRC:.cpp=.o)
-HEADERS :=
+HEADERS := Bureaucrat.hpp AForm.hpp \
+	   ShrubberyCreationForm.hpp \
+	   PresidentialPardonForm.hpp \
+	   RobotomyRequestForm.hpp
+
 
 all: $(NAME)
 

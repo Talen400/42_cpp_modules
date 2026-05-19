@@ -18,6 +18,17 @@ int	main(void)
 
 		std::cout << cidade;
 	}
+	separator("Test of exceptions");
+	{
+		try
+		{
+			Form f("invalid", 999, 5);
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+	}
 	separator("Test of Form methods");
 	{
 		Bureaucrat juiz("root", 11);

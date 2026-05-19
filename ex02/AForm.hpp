@@ -5,6 +5,16 @@
 
 class Bureaucrat;
 
+/*
+ *	std::exception
+  *		└── std::runtime_error
+  *  		└── AFormException
+  *      		├── GradeTooHighException
+  *     		├── GradeTooLowException
+  *      		├── FormHasSigned
+  *      		└── FormHasNotSigned
+ */
+
 class AForm
 {
 	private:
@@ -22,30 +32,40 @@ class AForm
 		AForm(const AForm &other);
 		AForm	&operator=(const AForm &other);
 
-		~AForm();
+		virtual ~AForm();
 
-		class GradeTooHighException: public std::exception
+		// class Father from std::exception::runtime_error
+		
+		class AFormException: public std::runtime_error
 		{
 			public:
-				virtual const char *what() const throw();
+				AFormException(const std::string &msg): std::runtime_error(msg) {}
 		};
 
-		class GradeTooLowException: public std::exception
+		// All class form AFormException
+		
+		// subject
+		class GradeTooHighException: public AFormException
 		{
 			public:
-				virtual const char *what() const throw();
+				GradeTooHighException(): AFormException("Grade too high!") {}
+		};
+		class GradeTooLowException: public AFormException
+		{
+			public:
+				GradeTooLowException(): AFormException("Grade too low!") {}
 		};
 
-		class FormHasSigned: public std::exception
+		// Some helpers:
+		class FormHasSigned: public AFormException
 		{
 			public:
-				virtual const char *what() const throw();
+				FormHasSigned(): AFormException("Form already signed!") {}
 		};
-
-		class FormHasNotSigned: public std::exception
+		class FormHasNotSigned: public AFormException
 		{
 			public:
-				virtual const char *what() const throw();
+				FormHasNotSigned(): AFormException("Form not signed!") {}
 		};
 
 		std::string	getName() const;
