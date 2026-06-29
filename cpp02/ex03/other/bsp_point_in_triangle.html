@@ -1,0 +1,158 @@
+
+<style>
+canvas { cursor: crosshair; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); display: block; }
+.row { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.card { flex: 1; min-width: 120px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; }
+.card .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.card .val { font-size: 15px; font-weight: 500; font-family: var(--font-mono); }
+.status { font-size: 14px; font-weight: 500; text-align: center; margin-top: 10px; padding: 8px; border-radius: var(--border-radius-md); }
+</style>
+
+<canvas id="c" width="560" height="320"></canvas>
+<div class="row">
+  <div class="card"><div class="label">d1 = (B−A) × (P−A)</div><div class="val" id="d1">—</div></div>
+  <div class="card"><div class="label">d2 = (C−B) × (P−B)</div><div class="val" id="d2">—</div></div>
+  <div class="card"><div class="label">d3 = (A−C) × (P−C)</div><div class="val" id="d3">—</div></div>
+</div>
+<div class="status" id="status">Click anywhere on the canvas</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+const A = {x: 140, y: 260};
+const B = {x: 420, y: 260};
+const C = {x: 280, y: 80};
+let P = {x: 280, y: 200};
+let dragging = false;
+
+function cross2d(ax, ay, bx, by, px, py) {
+  return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+}
+
+function isDark() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const dark = isDark();
+  const bg = dark ? '#1e1e1e' : '#ffffff';
+  const text = dark ? '#e0e0e0' : '#222222';
+  const muted = dark ? '#888' : '#999';
+  const triStroke = dark ? '#5577ff' : '#3355cc';
+  const triDark = dark ? '#2a3560' : '#e8edff';
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const d1 = cross2d(A.x, A.y, B.x, B.y, P.x, P.y);
+  const d2 = cross2d(B.x, B.y, C.x, C.y, P.x, P.y);
+  const d3 = cross2d(C.x, C.y, A.x, A.y, P.x, P.y);
+  const inside = (d1 > 0 && d2 > 0 && d3 > 0) || (d1 < 0 && d2 < 0 && d3 < 0);
+
+  ctx.beginPath();
+  ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.closePath();
+  ctx.fillStyle = inside
+    ? (dark ? 'rgba(40,160,100,0.18)' : 'rgba(40,180,100,0.13)')
+    : (dark ? 'rgba(80,80,80,0.15)' : 'rgba(200,200,200,0.2)');
+  ctx.fill();
+  ctx.strokeStyle = triStroke;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  [[A,B,'A→B'],[B,C,'B→C'],[C,A,'C→A']].forEach(([from, to, label]) => {
+    const mx = (from.x + to.x) / 2;
+    const my = (from.y + to.y) / 2;
+    ctx.fillStyle = muted;
+    ctx.font = '12px var(--font-mono, monospace)';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, mx, my - 8);
+  });
+
+  const arrowColor = dark ? '#ffaa33' : '#cc6600';
+  [[A,B,d1],[B,C,d2],[C,A,d3]].forEach(([from, to, d]) => {
+    const mx = (from.x + to.x * 2) / 3;
+    const my = (from.y + to.y * 2) / 3;
+    ctx.beginPath();
+    ctx.moveTo(mx, my);
+    ctx.lineTo(P.x, P.y);
+    ctx.strokeStyle = arrowColor;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  [{p:A,l:'A'},{p:B,l:'B'},{p:C,l:'C'}].forEach(({p, l}) => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 7, 0, Math.PI*2);
+    ctx.fillStyle = triStroke;
+    ctx.fill();
+    ctx.fillStyle = dark ? '#fff' : '#fff';
+    ctx.font = 'bold 11px var(--font-sans, sans-serif)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(l, p.x, p.y);
+    ctx.textBaseline = 'alphabetic';
+  });
+
+  const pc = inside ? (dark ? '#44dd88' : '#22aa55') : (dark ? '#ff6666' : '#cc2222');
+  ctx.beginPath();
+  ctx.arc(P.x, P.y, 9, 0, Math.PI*2);
+  ctx.fillStyle = pc;
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px var(--font-sans, sans-serif)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('P', P.x, P.y);
+  ctx.textBaseline = 'alphabetic';
+
+  const fmt = v => (v > 0 ? '+' : '') + v.toFixed(1);
+  const signColor = v => v > 0 ? (dark ? '#44dd88' : '#22aa55') : v < 0 ? (dark ? '#ff6666' : '#cc2222') : muted;
+
+  ['d1','d2','d3'].forEach((id, i) => {
+    const v = [d1, d2, d3][i];
+    const el = document.getElementById(id);
+    el.textContent = fmt(v);
+    el.style.color = signColor(v);
+  });
+
+  const st = document.getElementById('status');
+  if (inside) {
+    st.textContent = 'P is INSIDE the triangle — all signs match';
+    st.style.background = dark ? 'rgba(40,160,80,0.2)' : 'rgba(40,160,80,0.1)';
+    st.style.color = dark ? '#44dd88' : '#22aa55';
+  } else {
+    st.textContent = 'P is OUTSIDE the triangle — signs differ';
+    st.style.background = dark ? 'rgba(200,60,60,0.2)' : 'rgba(200,60,60,0.08)';
+    st.style.color = dark ? '#ff6666' : '#cc2222';
+  }
+}
+
+canvas.addEventListener('mousedown', e => { dragging = true; });
+canvas.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const r = canvas.getBoundingClientRect();
+  P.x = e.clientX - r.left;
+  P.y = e.clientY - r.top;
+  draw();
+});
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  P.x = e.clientX - r.left;
+  P.y = e.clientY - r.top;
+  draw();
+});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  P.x = e.touches[0].clientX - r.left;
+  P.y = e.touches[0].clientY - r.top;
+  draw();
+}, {passive: false});
+
+draw();
+</script>
