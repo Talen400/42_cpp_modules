@@ -10,7 +10,10 @@ ScalarConverter	&ScalarConverter::operator=(const ScalarConverter &other)
 	return (*this);
 };
 
+ScalarConverter::~ScalarConverter() {}
+/*
 auto	convert(std::string &in)
 {
 	return ("Test");
 };
+*/

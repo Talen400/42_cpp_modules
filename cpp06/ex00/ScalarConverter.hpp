@@ -14,7 +14,7 @@ class ScalarConverter
 
 		~ScalarConverter();
 
-		static auto	convert(std::string &in);
+		//static int	convert(std::string &in);
 };
 
 #endif
