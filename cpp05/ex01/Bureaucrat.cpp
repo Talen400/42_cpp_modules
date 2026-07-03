@@ -16,7 +16,7 @@ Bureaucrat::Bureaucrat(const std::string &name, int grade): _name(name)
 	std::cout << "Bureaucrat '" << _name << "' Construction parameter" << std::endl;
 };
 
-Bureaucrat::Bureaucrat(const Bureaucrat &other): _grade(other._grade)
+Bureaucrat::Bureaucrat(const Bureaucrat &other): _name(other._name),_grade(other._grade)
 {
 	std::cout << "Bureaucrat '" << _name << "' Construction from other Bureaucrat" << std::endl;
 };

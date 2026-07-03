@@ -23,9 +23,7 @@ Bureaucrat::Bureaucrat(const Bureaucrat &other): _name(other._name), _grade(othe
 Bureaucrat &Bureaucrat::operator=(const Bureaucrat &other)
 {
 	if (this != &other)
-	{
 		_grade = other._grade;
-	}
 	std::cout << "Bureaucrat '" << _name << "' Copy assignament" << std::endl;
 	return *this;
 };

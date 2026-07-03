@@ -45,6 +45,5 @@ AForm	*Intern::makeForm(std::string formName, std::string target)
 			return forms[i].create(target);
 		}
 	}
-	std::cerr << "Intern: formulário desconhecido: " << formName << std::endl;
 	throw AForm::FormInvalid();
 };
