@@ -8,7 +8,7 @@ ShrubberyCreationForm::ShrubberyCreationForm():
 {};
 
 ShrubberyCreationForm::ShrubberyCreationForm(const std::string target):
-	AForm("ShrubberyCreationForm", 25, 5),
+	AForm("ShrubberyCreationForm", 145, 137),
 	_target(target)
 {};
 
@@ -42,7 +42,12 @@ void		ShrubberyCreationForm::execute(Bureaucrat const &executor) const
 		std::cerr << "Error opening file" << std::endl;
 		return ;
 	}
-	ofs << "this is a tree: (tree)" << std::endl;
+	ofs << "       *       *       *" << std::endl;
+	ofs << "      ***     ***     ***" << std::endl;
+	ofs << "     *****   *****   *****" << std::endl;
+	ofs << "    ******* ******* *******" << std::endl;
+	ofs << "   ***********************" << std::endl;
+	ofs << "          | | | | |" << std::endl;
 	ofs.close();
 }
 

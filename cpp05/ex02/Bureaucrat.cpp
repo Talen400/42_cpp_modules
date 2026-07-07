@@ -78,7 +78,7 @@ void	Bureaucrat::signForm(AForm &form)
 	}
 	catch (std::exception &e)
 	{
-		std::cout << _name << " não conseguiu assinar " << form.getName() << " por que não teve grade" << std::endl;
+		std::cout << _name << " não conseguiu assinar " << form.getName() << " porque " << e.what() << std::endl;
 	}
 }
 
@@ -92,6 +92,6 @@ void	Bureaucrat::executeForm(AForm const &form)
 	catch (std::exception &e)
 	{
 		std::cout << _name << " não conseguiu executar " << form.getName()
-				  << " por que " << e.what() << std::endl;
+				  << " porque " << e.what() << std::endl;
 	}
 }

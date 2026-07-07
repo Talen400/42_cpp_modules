@@ -2,6 +2,7 @@
 # define AFORM_HPP
 
 #include <iostream>
+#include <stdexcept>
 
 class Bureaucrat;
 

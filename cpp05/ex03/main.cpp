@@ -18,6 +18,7 @@ static void	separator(const std::string &label)
 
 int	main(void)
 {
+	srand(time(NULL));
 	separator("Test canonic form:");
 	{
 		Intern a;

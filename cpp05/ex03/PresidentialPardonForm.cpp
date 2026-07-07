@@ -7,7 +7,7 @@ PresidentialPardonForm::PresidentialPardonForm():
 {};
 
 PresidentialPardonForm::PresidentialPardonForm(const std::string target):
-	AForm("PresidentialPardonForm", 72, 45),
+	AForm("PresidentialPardonForm", 25, 5),
 	_target(target)
 {};
 

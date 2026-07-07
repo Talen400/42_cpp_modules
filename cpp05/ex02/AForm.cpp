@@ -1,7 +1,7 @@
 #include "AForm.hpp"
 #include "Bureaucrat.hpp"
 
-AForm::AForm(): _name("root"), _min_grade(1), _min_grade_exec(1) {};
+AForm::AForm(): _name("root"), _min_grade(1), _min_grade_exec(1), _sign(false) {};
 
 AForm::AForm(const std::string &name, int min_grade, int min_grade_exec):
 	_name(name), _sign(false)
