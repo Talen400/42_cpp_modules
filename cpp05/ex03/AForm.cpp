@@ -16,8 +16,6 @@ AForm	&AForm::operator=(const AForm &other)
 {
 	if (this != &other)
 	{
-		_min_grade = other._min_grade;
-		_min_grade_exec = other._min_grade_exec;
 		_sign = false;
 	}
 	return (*this);

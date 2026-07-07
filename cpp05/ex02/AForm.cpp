@@ -4,14 +4,12 @@
 AForm::AForm(): _name("root"), _min_grade(1), _min_grade_exec(1), _sign(false) {};
 
 AForm::AForm(const std::string &name, int min_grade, int min_grade_exec):
-	_name(name), _sign(false)
+	_name(name), _min_grade(min_grade), _min_grade_exec(min_grade_exec), _sign(false)
 {
 	if (min_grade < 1 || min_grade_exec < 1)
 		throw GradeTooHighException();
 	if (min_grade > 150 || min_grade_exec > 150)
 		throw GradeTooLowException();
-	_min_grade = min_grade;
-	_min_grade_exec = min_grade_exec;
 };
 
 AForm::AForm(const AForm &other):
@@ -23,8 +21,6 @@ AForm	&AForm::operator=(const AForm &other)
 {
 	if (this != &other)
 	{
-		_min_grade = other._min_grade;
-		_min_grade_exec = other._min_grade_exec;
 		_sign = false;
 	}
 	return (*this);

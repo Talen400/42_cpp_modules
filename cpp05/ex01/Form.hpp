@@ -9,8 +9,8 @@ class Form
 {
 	private:
 		const std::string	_name;
-		int		_min_grade;
-		int		_min_grade_exec;
+		const int		_min_grade;
+		const int		_min_grade_exec;
 		bool	_sign;
 
 	public:
