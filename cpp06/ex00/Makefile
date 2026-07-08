@@ -2,7 +2,6 @@ NAME := converter
 
 CPP := c++
 CFLAGS := -O3 -Wall -Werror -Wextra -std=c++98 -I. \
-		  -Wstrict-aliasing=3 \
 		  -Wconversion \
 		  -Wold-style-cast
 
