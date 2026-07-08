@@ -1,16 +1,15 @@
-NAME := converter
+NAME := serializer
 
 CPP := c++
 CFLAGS := -O3 -Wall -Werror -Wextra -std=c++98 -I. \
 		  -Wstrict-aliasing=3 \
 		  -Wconversion \
 		  -Wold-style-cast
-
 LDFLAGS := -g -fsanitize=address
 
-SRC = main.cpp ScalarConverter.cpp
+SRC = main.cpp Serializer.cpp
 OBJ := $(SRC:.cpp=.o)
-HEADERS := ScalarConverter.hpp
+HEADERS := Serializer.hpp Data.hpp
 
 all: $(NAME)
 

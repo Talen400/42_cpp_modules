@@ -1,16 +1,15 @@
-NAME := converter
+NAME := identify
 
 CPP := c++
 CFLAGS := -O3 -Wall -Werror -Wextra -std=c++98 -I. \
 		  -Wstrict-aliasing=3 \
 		  -Wconversion \
 		  -Wold-style-cast
-
 LDFLAGS := -g -fsanitize=address
 
-SRC = main.cpp ScalarConverter.cpp
+SRC = main.cpp Base.cpp A.cpp B.cpp C.cpp
 OBJ := $(SRC:.cpp=.o)
-HEADERS := ScalarConverter.hpp
+HEADERS := Base.hpp A.hpp B.hpp C.hpp
 
 all: $(NAME)
 

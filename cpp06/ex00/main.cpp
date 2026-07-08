@@ -1,29 +1,14 @@
-#include <iostream>
-#include <typeinfo>
-#include <limits>
 #include "ScalarConverter.hpp"
-#include <string>
+#include <iostream>
 
-static void	separator(const std::string &label)
+int	main(int argc, char **argv)
 {
-	std::ostream	&out = std::cout;
-	out << "\n===" << label << "===\n" << std::endl;
-}
-
-int	main()
-{
-	separator("Form Canonic ScalarConverter test");
+	if (argc != 2)
 	{
-		ScalarConverter	a;
-		ScalarConverter	b(a);
-		ScalarConverter	c = b;
+		std::cerr << "Usage: ./convert <literal>" << std::endl;
+		return 1;
 	}
-	char c;
-	int *p1 = (int *) (&c);
-	*p1 = 3;
-	if (c == 3)
-		std::cout << "Compiler ignore its" << std::endl;
-	else
-		std::cout << "The value was modified" << std::endl;
+	ScalarConverter::convert(argv[1]);
+	return 0;
 }
 
