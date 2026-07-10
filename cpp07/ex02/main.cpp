@@ -59,6 +59,8 @@ int main() {
     self[0] = 1;
     self[1] = 2;
     self[2] = 3;
+	Array<int> &selfRef = self;
+	self = selfRef;
     for (unsigned int i = 0; i < self.size(); i++)
         std::cout << "self[" << i << "] = " << self[i] << std::endl;
 
