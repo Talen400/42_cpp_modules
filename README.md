@@ -14,7 +14,8 @@ A collection of C++ modules completed as part of the 42 School common core. Each
 | [cpp03](cpp03/) | Inheritance, constructor/destructor chaining, diamond problem | ex00–ex03: ClapTrap, ScavTrap, FragTrap, DiamondTrap |
 | [cpp04](cpp04/) | Subtype polymorphism, abstract classes, interfaces, deep copy | ex00–ex03: Animal, Brain, AMateria |
 | [cpp05](cpp05/) | Exceptions, nested classes, try/catch/throw | ex00–ex03: Bureaucrat, Form |
-| [cpp06](cpp06/) | C++ casts (static, dynamic, const, reinterpret) | ex00: ScalarConverter |
+| [cpp06](cpp06/) | C++ casts (static, dynamic, const, reinterpret) | ex00: ScalarConverter, ex01: Serializer, ex02: Identify |
+| [cpp07](cpp07/) | Function templates, class templates, generic programming | ex00: swap/min/max, ex01: iter, ex02: Array |
 
 ## Usage
 
