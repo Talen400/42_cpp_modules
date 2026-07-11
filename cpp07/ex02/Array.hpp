@@ -2,6 +2,7 @@
 #define ARRAY_HPP
 
 #include <exception>
+#include <stdexcept>
 #include <cstddef>
 
 template <typename T>
@@ -37,13 +38,13 @@ public:
 
     T& operator[](unsigned int i) {
         if (i >= _size)
-            throw std::exception();
+            throw std::runtime_error("index is out of bounds");
         return _data[i];
     }
 
     const T& operator[](unsigned int i) const {
         if (i >= _size)
-            throw std::exception();
+            throw std::runtime_error("index is out of bounds");
         return _data[i];
     }
 
