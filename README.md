@@ -16,6 +16,7 @@ A collection of C++ modules completed as part of the 42 School common core. Each
 | [cpp05](cpp05/) | Exceptions, nested classes, try/catch/throw | ex00–ex03: Bureaucrat, Form |
 | [cpp06](cpp06/) | C++ casts (static, dynamic, const, reinterpret) | ex00: ScalarConverter, ex01: Serializer, ex02: Identify |
 | [cpp07](cpp07/) | Function templates, class templates, generic programming | ex00: swap/min/max, ex01: iter, ex02: Array |
+| [cpp08](cpp08/) | STL containers, iterators, algorithms, template specialization | ex00: easyfind, ex01: Span, ex02: MutantStack |
 
 ## Usage
 
