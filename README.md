@@ -17,6 +17,7 @@ A collection of C++ modules completed as part of the 42 School common core. Each
 | [cpp06](cpp06/) | C++ casts (static, dynamic, const, reinterpret) | ex00: ScalarConverter, ex01: Serializer, ex02: Identify |
 | [cpp07](cpp07/) | Function templates, class templates, generic programming | ex00: swap/min/max, ex01: iter, ex02: Array |
 | [cpp08](cpp08/) | STL containers, iterators, algorithms, template specialization | ex00: easyfind, ex01: Span, ex02: MutantStack |
+| [cpp09](cpp09/) | STL advanced (map, stack, Ford-Johnson sort), CSV parsing, RPN | ex00: Bitcoin Exchange, ex01: RPN, ex02: PmergeMe |
 
 ## Usage
 
