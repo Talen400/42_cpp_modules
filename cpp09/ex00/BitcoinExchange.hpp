@@ -6,7 +6,7 @@
 
 class BitcoinExchange {
 	private:
-    	std::map<std::string, float> _rates;
+		std::map<std::string, float> _rates;
 
 		BitcoinExchange(const BitcoinExchange& other);
 		BitcoinExchange& operator=(const BitcoinExchange& other);
