@@ -48,9 +48,9 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
         size_t comma = line.find(',');
         if (comma == std::string::npos)
             continue;
-
+		 
         std::string date = line.substr(0, comma);
-        double rate = std::strtod(line.substr(comma + 1).c_str(), NULL);
+        float rate = static_cast<float>(std::strtod(line.substr(comma + 1).c_str(), NULL));
 
         _rates[date] = rate;
     }
@@ -58,8 +58,8 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
     return true;
 }
 
-double BitcoinExchange::getRate(const std::string& date) const {
-    std::map<std::string, double>::const_iterator it = _rates.find(date);
+float BitcoinExchange::getRate(const std::string& date) const {
+    std::map<std::string, float>::const_iterator it = _rates.find(date);
     if (it != _rates.end())
         return it->second;
 
@@ -72,13 +72,13 @@ double BitcoinExchange::getRate(const std::string& date) const {
     return it->second;
 }
 
-double BitcoinExchange::processLine(const std::string& line) const {
+float BitcoinExchange::processLine(const std::string& line) const {
     if (line.empty())
         return -2;
 
     std::istringstream iss(line);
     std::string date, sep;
-    double value;
+    float value;
 
     if (!(iss >> date >> sep >> value) || sep != "|") {
         std::cout << "Error: bad input => " << line << std::endl;
@@ -100,13 +100,13 @@ double BitcoinExchange::processLine(const std::string& line) const {
         return -2;
     }
 
-    double rate = getRate(date);
+    float rate = getRate(date);
     if (rate < 0) {
         std::cout << "Error: no exchange rate available for " << date << std::endl;
         return -2;
     }
 
-    double result = value * rate;
+    float result = value * rate;
     std::cout << date << " => " << value << " = " << result << std::endl;
     return result;
 }
