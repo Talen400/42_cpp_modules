@@ -108,8 +108,9 @@ float BitcoinExchange::processLine(const std::string& line) const {
 
 	float rate = getRate(date);
 
-	if (rate == 0) {
+	if (rate == 0 || rate < 0) {
 		std::cout << "Error: no avaliable rate to " << date << std::endl;
+		return -2;
 	}
 
 	float result = value * rate;
