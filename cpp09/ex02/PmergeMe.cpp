@@ -202,8 +202,11 @@ void PmergeMe::fordJohnsonSortDeq(std::deque<int>& arr) {
 
 void PmergeMe::sortAndMeasure(const std::vector<int>& input) {
 	std::cout << "Before:" << std::endl;
-	for (size_t i = 0; i < input.size(); i++)
-		std::cout << input[i] << " ";
+	for (size_t i = 0; i < input.size(); i++) {
+		std::cout << input[i];
+		if (i + 1 < input.size())
+			std::cout << " ";
+	}
 	std::cout << std::endl;
 
 	std::vector<int> vec(input);
@@ -212,8 +215,11 @@ void PmergeMe::sortAndMeasure(const std::vector<int>& input) {
 	double endVec = getTime();
 
 	std::cout << "After:" << std::endl;
-	for (size_t i = 0; i < vec.size(); i++)
-		std::cout << vec[i] << " ";
+	for (size_t i = 0; i < vec.size(); i++) {
+		std::cout << vec[i];
+		if (i + 1 < vec.size())
+			std::cout << " ";
+	}
 	std::cout << std::endl;
 
 	std::deque<int> deq(input.begin(), input.end());
