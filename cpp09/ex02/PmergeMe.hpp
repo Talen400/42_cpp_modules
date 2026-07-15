@@ -12,8 +12,8 @@ class PmergeMe {
 		PmergeMe& operator=(const PmergeMe& other);
 		~PmergeMe();
 
-		static void mergeInsertSortVector(std::vector<int>& arr);
-		static void mergeInsertSortDeque(std::deque<int>& arr);
+		static void fordJohnsonSortVec(std::vector<int>& arr);
+		static void fordJohnsonSortDeq(std::deque<int>& arr);
 
 	public:
 		static void sortAndMeasure(const std::vector<int>& input);

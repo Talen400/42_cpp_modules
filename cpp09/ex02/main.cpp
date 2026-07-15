@@ -1,25 +1,25 @@
 #include "PmergeMe.hpp"
 #include <iostream>
-#include <cstdlib>
+#include <sstream>
 #include <vector>
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        std::cerr << "Error" << std::endl;
-        return 1;
-    }
+	if (argc < 2) {
+		std::cerr << "Error" << std::endl;
+		return 1;
+	}
 
-    std::vector<int> input;
-    for (int i = 1; i < argc; i++) {
-        char* end;
-        long n = std::strtol(argv[i], &end, 10);
-        if (*end != '\0' || n < 0) {
-            std::cerr << "Error" << std::endl;
-            return 1;
-        }
-        input.push_back(static_cast<int>(n));
-    }
+	std::vector<int> input;
+	for (int i = 1; i < argc; i++) {
+		int n;
+		std::istringstream iss(argv[i]);
+		if (!(iss >> n) || n < 0) {
+			std::cerr << "Error" << std::endl;
+			return 1;
+		}
+		input.push_back(n);
+	}
 
-    PmergeMe::sortAndMeasure(input);
-    return 0;
+	PmergeMe::sortAndMeasure(input);
+	return 0;
 }

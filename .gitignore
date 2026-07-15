@@ -4,3 +4,10 @@
 *.out
 a.out
 .DS_Store
+
+# binaries
+btc
+RPN
+PmergeMe
+array
+mutantstack

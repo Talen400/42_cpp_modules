@@ -1,7 +1,7 @@
 #include "BitcoinExchange.hpp"
+#include <cctype>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
 #include <iostream>
 
 BitcoinExchange::BitcoinExchange() {}
@@ -19,8 +19,9 @@ bool BitcoinExchange::isValidDate(const std::string& date) const {
 			return false;
 	}
 
-	int m = std::atoi(date.substr(5, 2).c_str());
-	int d = std::atoi(date.substr(8, 2).c_str());
+	int m, d;
+	std::istringstream(date.substr(5, 2)) >> m;
+	std::istringstream(date.substr(8, 2)) >> d;
 
 	if (m < 1 || m > 12 || d < 1 || d > 31)
 		return false;
@@ -50,7 +51,8 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
 			continue;
 		 
 		std::string date = line.substr(0, comma);
-		float rate = static_cast<float>(std::strtod(line.substr(comma + 1).c_str(), NULL));
+		float rate;
+		std::istringstream(line.substr(comma + 1)) >> rate;
 
 		_rates[date] = rate;
 	}
@@ -66,8 +68,6 @@ float BitcoinExchange::getRate(const std::string& date) const {
 	it = _rates.lower_bound(date);
 	if (it != _rates.begin())
 		--it;
-	else
-		return -1;
 
 	return it->second;
 }
@@ -87,7 +87,7 @@ float BitcoinExchange::processLine(const std::string& line) const {
 	}
 
 	if (iss >> extra) {
-		std::cout << "Error: bad input (extra characters) => " << line << std::endl;
+		std::cout << "Error: bad input => " << line << std::endl;
 		return -2;
 	}
 
@@ -107,11 +107,6 @@ float BitcoinExchange::processLine(const std::string& line) const {
 	}
 
 	float rate = getRate(date);
-	if (rate < 0) {
-		std::cout << "Error: no exchange rate available for " << date << std::endl;
-		return -2;
-	}
-
 	float result = value * rate;
 	std::cout << date << " => " << value << " = " << result << std::endl;
 	return result;

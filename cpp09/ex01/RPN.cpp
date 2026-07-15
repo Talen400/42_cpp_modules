@@ -1,8 +1,8 @@
 #include "RPN.hpp"
 #include <stack>
 #include <sstream>
-#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
 bool RPN::isOperator(const std::string& token) {
 	return token == "+" || token == "-" || token == "*" || token == "/";
@@ -14,10 +14,10 @@ int RPN::applyOp(int a, int b, const std::string& op) {
 	if (op == "*") return a * b;
 	if (op == "/") {
 		if (b == 0)
-			throw std::exception();
+			throw std::runtime_error("division by zero");
 		return a / b;
 	}
-	throw std::exception();
+	throw std::runtime_error("unknown operator");
 }
 
 int RPN::evaluate(const std::string& expr) {
@@ -27,34 +27,23 @@ int RPN::evaluate(const std::string& expr) {
 
 	while (iss >> token) {
 		if (isOperator(token)) {
-			if (s.size() < 2) {
-				std::cerr << "Error" << std::endl;
-				return -1;
-			}
+			if (s.size() < 2)
+				throw std::runtime_error("insufficient operands");
+
 			int b = s.top(); s.pop();
 			int a = s.top(); s.pop();
-
-			try {
-				s.push(applyOp(a, b, token));
-			} catch (...) {
-				std::cerr << "Error" << std::endl;
-				return -1;
-			}
+			s.push(applyOp(a, b, token));
 		} else {
-			char* end;
-			int num = std::strtol(token.c_str(), &end, 10);
-			if (*end != '\0' || num < 0 || num > 9 || token.length() != 1) {
-				std::cerr << "Error" << std::endl;
-				return -1;
-			}
+			int num;
+			std::istringstream tokstream(token);
+			if (!(tokstream >> num) || num < 0 || num > 9 || token.length() != 1)
+				throw std::runtime_error("invalid token");
 			s.push(num);
 		}
 	}
 
-	if (s.size() != 1) {
-		std::cerr << "Error" << std::endl;
-		return -1;
-	}
+	if (s.size() != 1)
+		throw std::runtime_error("invalid expression");
 
 	return s.top();
 }

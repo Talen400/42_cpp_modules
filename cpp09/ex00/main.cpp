@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
 	BitcoinExchange exchange;
 	if (!exchange.loadDatabase("data.csv")) {
-		std::cerr << "Error: could not open database file." << std::endl;
+		std::cerr << "Error: could not open file." << std::endl;
 		return 1;
 	}
 

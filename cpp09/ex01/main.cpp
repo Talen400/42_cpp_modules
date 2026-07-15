@@ -1,5 +1,6 @@
 #include "RPN.hpp"
 #include <iostream>
+#include <stdexcept>
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
@@ -7,10 +8,13 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	int result = RPN::evaluate(argv[1]);
-	if (result == -1)
+	try {
+		int result = RPN::evaluate(argv[1]);
+		std::cout << result << std::endl;
+	} catch (const std::exception& e) {
+		std::cerr << "Error" << std::endl;
 		return 1;
+	}
 
-	std::cout << result << std::endl;
 	return 0;
 }
