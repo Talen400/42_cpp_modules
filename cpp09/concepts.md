@@ -74,11 +74,9 @@ std::map<std::string, double> db;
 // lower_bound retorna o PRIMEIRO elemento >= chave
 std::map<std::string, double>::iterator it = db.lower_bound("2011-01-15");
 
-// Se it == db.begin(), não tem data anterior
+// Se it == db.begin(), o primeiro registro do DB é a data mais próxima
 // Senão, a data anterior é --it
-if (it == db.begin())
-    erro;
-else
+if (it != db.begin())
     --it;  // it agora aponta para a data inferior mais próxima
 ```
 
@@ -95,23 +93,34 @@ DB no map (ordenado por data):
   2011-01-09 → 0.32  ← data inferior mais próxima
 ```
 
+Para datas anteriores ao primeiro registro do DB (ex: 2008-01-01),
+`lower_bound` retorna `begin()` — nesse caso, usamos a taxa do
+primeiro registro mesmo que ela não seja estritamente "inferior".
+Isso evita erros artificiais para datas fora do range histórico
+do DB.
+
 ### 2.4 Validação de data
 
 Uma data válida tem formato `Ano-Mês-Dia`:
 
 ```cpp
-bool validDate(const std::string& date) {
+bool isValidDate(const std::string& date) {
     if (date.length() != 10 || date[4] != '-' || date[7] != '-')
         return false;
 
-    int y, m, d;
-    if (sscanf(date.c_str(), "%d-%d-%d", &y, &m, &d) != 3)
-        return false;
+    for (int i = 0; i < 10; i++) {
+        if (i == 4 || i == 7) continue;
+        if (!std::isdigit(date[i]))
+            return false;
+    }
+
+    int m, d;
+    std::istringstream(date.substr(5, 2)) >> m;
+    std::istringstream(date.substr(8, 2)) >> d;
 
     if (m < 1 || m > 12 || d < 1 || d > 31)
         return false;
 
-    // Validação simples de dias por mês (ignorando ano bissexto)
     if (m == 2 && d > 29) return false;
     if ((m == 4 || m == 6 || m == 9 || m == 11) && d > 30) return false;
 
@@ -124,10 +133,11 @@ bool validDate(const std::string& date) {
 O valor deve ser um float ou int positivo entre 0 e 1000:
 
 ```cpp
-double val = strtod(valueStr.c_str(), &end);
-if (*end != '\0' || val < 0)       // "Error: not a positive number."
+float value;
+std::istringstream(valueStr) >> value;
+if (value < 0)       // "Error: not a positive number."
     erro;
-if (val > 1000)                    // "Error: too large a number."
+if (value > 1000)    // "Error: too large a number."
     erro;
 ```
 
@@ -197,7 +207,7 @@ int RPN::evaluate(const std::string& expr) {
 
     while (iss >> token) {
         if (token == "+" || token == "-" || token == "*" || token == "/") {
-            if (s.size() < 2) throw std::exception();
+            if (s.size() < 2) throw std::runtime_error("insuficient operands");
             int b = s.top(); s.pop();
             int a = s.top(); s.pop();
 
@@ -205,22 +215,28 @@ int RPN::evaluate(const std::string& expr) {
             if (token == "-") s.push(a - b);
             if (token == "*") s.push(a * b);
             if (token == "/") {
-                if (b == 0) throw std::exception();
+                if (b == 0) throw std::runtime_error("division by zero");
                 s.push(a / b);
             }
         } else {
             // Número: deve ser um dígito (0-9)
-            int num = std::atoi(token.c_str());
-            if (num < 0 || num > 9 || token.length() != 1)
-                throw std::exception();
+            int num;
+            std::istringstream tokstream(token);
+            if (!(tokstream >> num) || num < 0 || num > 9 || token.length() != 1)
+                throw std::runtime_error("invalid token");
             s.push(num);
         }
     }
 
-    if (s.size() != 1) throw std::exception();
+    if (s.size() != 1) throw std::runtime_error("invalid expression");
     return s.top();
 }
 ```
+
+**Sobre a sentinela de erro:** Cuidado para não usar `-1` como valor de retorno
+para erros — `-1` é um resultado válido em RPN (ex: `2 3 -` = `-1`). A
+abordagem correta é lançar exceções (`std::runtime_error`) para todos os erros
+e capturá-las no `main()`, imprimindo `"Error"` no stderr.
 
 **Precaução importante:** O pop é em ordem INVERSA. Quando você faz `8 9 -`,
 o stack tem `[8][9]` (8 no fundo, 9 no topo). O primeiro pop tira 9 (b),
@@ -235,126 +251,371 @@ funciona — o primeiro operando está embaixo no stack.
 
 O algoritmo de Ford-Johnson é um algoritmo de ordenação que minimiza o número
 de comparações no pior caso. Foi descrito por Lester Ford Jr. e Selmer Johnson
-em 1959, e depois documentado por Knuth em *The Art of Computer Programming*.
+em 1959, e depois documentado por Knuth em *The Art of Computer Programming*,
+Vol. 3, página 184.
 
 **Ideia principal:**
-1. **Pair**: Divide em pares e ordena cada par (2 comparações por par)
-2. **Sort larger**: Ordena recursivamente os maiores elementos de cada par
-3. **Insert smaller**: Insere os menores elementos usando busca binária, na ordem
-   determinada pela **sequência de Jacobsthal**
+1. **Pair**: Divide em ⌊n/2⌋ pares e ordena cada par (garantir que o maior venha
+   primeiro dentro de cada par)
+2. **Sort larger**: Ordena recursivamente os elementos maiores de cada par
+   (main chain) usando o próprio Ford-Johnson
+3. **Insert smaller**: Insere os elementos menores (pend chain) na main chain
+   usando busca binária, na ordem determinada pela **sequência de Jacobsthal**
+
+O truque está na **ordem de inserção**: em vez de inserir os elementos menores
+sequencialmente (que poderia exigir muitas comparações), a sequência de Jacobsthal
+determina uma ordem que minimiza o número máximo de comparações no pior caso.
 
 ### 4.2 Passo a passo visual
 
 ```
 Sequência inicial: [11, 8, 2, 1, 15, 4, 7, 6]
+                          8 elementos
 
 Passo 1 — Pair:
+  Elementos:    11  8  |  2  1  |  15  4  |  7  6
+                a1 b1    a2 b2    a3 b3    a4 b4
+
+  Ordenar cada par (a = menor, b = maior):
   (8, 11)  (1, 2)  (4, 15)  (6, 7)
-   cada par ordenado (menor, maior)
+   a1  b1    a2 b2    a3 b3   a4  b4
 
-Passo 2 — Sort larger (recursivamente):
-  Maiores:  [11, 2, 15, 7]
-  Ordenados: [2, 7, 11, 15]
+Passo 2 — Extrair main chain (todos os b's) e pend chain (todos os a's):
+  main chain (b's): [11, 2, 15, 7]
+  pend chain (a's): [8, 1, 4, 6]
 
-  (mantendo os pares originais)
-  Pares ordenados pelos maiores:
-  (1,2)  (6,7)  (8,11)  (4,15)
+  Ordenar main chain recursivamente (pelo b):
+  main chain: [2, 7, 11, 15]   ← ordenada por Ford-Johnson
 
-Passo 3 — Insert smaller na sequência de Jacobsthal:
-  Sequência principal (maiores): [2, 7, 11, 15]
-  A ser inserido:  [1, 6, 8, 4]
-  Ordem de inserção (Jacobsthal): 3º, 2º, 4º, 1º
-  → 8, 6, 4, 1
+  Reorganizar pend chain na mesma ordem:
+  pend chain: [1, 6, 8, 4]     ← cada a acompanha seu b
+
+  Visualmente (pares ordenados pelos b's):
+  (1, 2)  (6, 7)  (8, 11)  (4, 15)
+   a1 b1   a4 b4   a2 b2    a3 b3
+
+Passo 3 — Gerar sequência de Jacobsthal:
+  Jacobsthal: J(k) = J(k-1) + 2*J(k-2)
+  J(0)=1, J(1)=1, J(2)=3, J(3)=5, J(4)=11, J(5)=21...
+
+  Para 4 pend items, Jacobsthal: [1, 1, 3, 5]
+  Intervalos de inserção: [J(1), J(2)-1], [J(2), J(3)-1], ...
+  → 1..2, 3..4, ...
+
+Passo 4 — Inserir pend na main usando lower_bound:
+  main chain: [2, 7, 11, 15]
+
+  1. Inserir pend[0]=1 no início:  [1, 2, 7, 11, 15]
+
+  2. Inserir pend[2]=8 (Jacobsthal):
+     lower_bound(8) → 11 → insere antes:  [1, 2, 7, 8, 11, 15]
+
+  3. Inserir pend[1]=6:
+     lower_bound(6) → 7 → insere antes:  [1, 2, 6, 7, 8, 11, 15]
+
+  4. Inserir pend[3]=4:
+     lower_bound(4) → 6 → insere antes:  [1, 2, 4, 6, 7, 8, 11, 15]
+
+Resultado final ordenado: [1, 2, 4, 6, 7, 8, 11, 15]
 ```
 
-### 4.3 Implementação prática
+### 4.3 A sequência de Jacobsthal
 
-Em vez de implementar o Ford-Johnson exato (que é muito complexo), você pode
-implementar um **Merge Sort** clássico em dois containers diferentes e medir
-o tempo de cada um. A diferença de performance entre `std::vector` e
-`std::deque` (ou `std::list`) já é suficiente para mostrar resultados.
+A sequência de Jacobsthal determina a **ordem ideal de inserção** dos elementos
+pendentes na main chain. A definição:
 
-No entanto, o subject diz: "sim, você precisa usar o algoritmo de Ford-Johnson".
-Então implemente o merge-insert sort:
+```
+J(0) = 1
+J(1) = 1
+J(k) = J(k-1) + 2 * J(k-2), para k >= 2
+```
+
+Os primeiros valores: 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, ...
+
+No Ford-Johnson, os intervalos de inserção são:
+
+```
+[J(k-1), J(k)-1] para k = 2, 3, 4, ...
+
+k=2: [1, 2]  → insere índices 2, 1 (do pend)
+k=3: [3, 4]  → insere índices 4, 3
+k=4: [5, 10] → insere índices 10, 9, 8, 7, 6, 5
+...
+```
+
+Cada intervalo é percorrido **de trás para frente** (decrescente), porque os
+elementos com índices maiores na main chain já estão em posições avançadas,
+e inseri-los primeiro reduz o custo de realocação.
+
+Implementação em C++98:
 
 ```cpp
-// Ford-Johnson (simplificado)
-void mergeInsertSort(std::vector<int>& arr) {
-    if (arr.size() <= 1) return;
+std::vector<int> jacob;
+jacob.push_back(1);  // J(0)
+jacob.push_back(1);  // J(1)
 
-    // Passo 1: criar pares e ordenar cada par
-    for (size_t i = 0; i + 1 < arr.size(); i += 2)
-        if (arr[i] > arr[i + 1])
-            swap(arr[i], arr[i + 1]);
+// Gera Jacobsthal até cobrir todos os pend items
+while (jacob.back() < pairCount) {
+    int sz = jacob.size();
+    jacob.push_back(jacob[sz - 1] + 2 * jacob[sz - 2]);
+}
 
-    // Passo 2: ordenar os maiores recursivamente
-    std::vector<int> larger;
-    for (size_t i = 1; i < arr.size(); i += 2)
-        larger.push_back(arr[i]);
-    mergeInsertSort(larger);
+// Para cada intervalo [J(k-1), J(k)-1]
+for (size_t k = 2; k < jacob.size(); k++) {
+    int end = jacob[k - 1];
+    int start = jacob[k] - 1;
+    if (start >= pairCount) start = pairCount - 1;
+    if (end < 1) end = 1;
+    if (start < end) continue;
 
-    // Passo 3: intercalar os menores na sequência dos maiores
-    std::vector<int> smaller;
-    for (size_t i = 0; i < arr.size(); i += 2)
-        smaller.push_back(arr[i]);
+    // Insere de trás para frente no intervalo
+    for (int i = start; i >= end; i--) {
+        if (inserted[i]) continue;
+        // binary search + insert
+        std::lower_bound(main.begin(), main.end(), pend[i]);
+        main.insert(pos, pend[i]);
+        inserted[i] = true;
+    }
+}
 
-    // Inserir cada menor no larger usando binary search
-    for (size_t i = 0; i < smaller.size(); i++)
-        larger.insert(
-            std::lower_bound(larger.begin(), larger.end(), smaller[i]),
-            smaller[i]);
-
-    arr = larger;
+// Fallback: insere qualquer pend não inserido
+for (int i = 1; i < pairCount; i++) {
+    if (!inserted[i]) {
+        // binary search + insert
+    }
 }
 ```
 
-### 4.4 Medição de tempo
+### 4.4 O algoritmo completo (Ford-Johnson para vector)
+
+```cpp
+void fordJohnsonSortVec(std::vector<int>& arr) {
+    int n = arr.size();
+    if (n <= 1) return;
+
+    // --- Passo 1: Pair ---
+    bool hasStraggler = (n % 2 == 1);
+    int straggler = hasStraggler ? arr[n - 1] : 0;
+    int pairCount = n / 2;
+
+    std::vector<std::pair<int,int> > pairs(pairCount);
+    for (int i = 0; i < pairCount; i++) {
+        int a = arr[2 * i];
+        int b = arr[2 * i + 1];
+        if (a > b) std::swap(a, b);
+        pairs[i] = std::make_pair(a, b);  // (menor, maior)
+    }
+
+    // --- Passo 2: Sort pairs by b (insertion sort simples) ---
+    for (int i = 1; i < pairCount; i++) {
+        std::pair<int,int> key = pairs[i];
+        int j = i - 1;
+        while (j >= 0 && pairs[j].second > key.second) {
+            pairs[j + 1] = pairs[j];
+            j--;
+        }
+        pairs[j + 1] = key;
+    }
+
+    // --- Extrair main chain (b's) e pend chain (a's) ---
+    std::vector<int> main, pend;
+    for (int i = 0; i < pairCount; i++) {
+        main.push_back(pairs[i].second);
+        pend.push_back(pairs[i].first);
+    }
+
+    // --- Passo 3: Sort main chain recursivamente ---
+    fordJohnsonSortVec(main);
+
+    // --- Passo 4: Insert pend chain na main chain ---
+    // Primeiro pend[0] sempre vai para o início
+    main.insert(main.begin(), pend[0]);
+
+    // Gerar sequência de Jacobsthal
+    std::vector<int> jacob;
+    jacob.push_back(1);
+    jacob.push_back(1);
+    while (jacob.back() < pairCount)
+        jacob.push_back(jacob[jacob.size()-1] + 2*jacob[jacob.size()-2]);
+
+    std::vector<bool> inserted(pairCount, false);
+    inserted[0] = true;
+
+    // Inserir nos intervalos de Jacobsthal
+    for (size_t k = 2; k < jacob.size(); k++) {
+        int end = jacob[k - 1];
+        int start = jacob[k] - 1;
+        if (start >= pairCount) start = pairCount - 1;
+        if (end < 1) end = 1;
+        if (start < end) continue;
+
+        for (int i = start; i >= end; i--) {
+            if (inserted[i]) continue;
+            std::vector<int>::iterator pos =
+                std::lower_bound(main.begin(), main.end(), pend[i]);
+            main.insert(pos, pend[i]);
+            inserted[i] = true;
+        }
+    }
+
+    // Fallback para pend's não inseridos
+    for (int i = 1; i < pairCount; i++) {
+        if (!inserted[i]) {
+            std::vector<int>::iterator pos =
+                std::lower_bound(main.begin(), main.end(), pend[i]);
+            main.insert(pos, pend[i]);
+        }
+    }
+
+    // Straggler (se n for ímpar)
+    if (hasStraggler) {
+        std::vector<int>::iterator pos =
+            std::lower_bound(main.begin(), main.end(), straggler);
+        main.insert(pos, straggler);
+    }
+
+    arr = main;
+}
+```
+
+### 4.5 Versão para deque
+
+A implementação para `std::deque` segue a mesma lógica, mas com diferenças
+importantes nos tipos:
+
+```cpp
+void fordJohnsonSortDeq(std::deque<int>& arr) {
+    int n = arr.size();
+    if (n <= 1) return;
+
+    // Pairing: mesmo algoritmo, armazena em vector<pair>
+    std::vector<std::pair<int,int> > pairs(pairCount);
+    // ... (idêntico à versão vector)
+
+    // Main chain usa deque, pend chain usa vector
+    std::deque<int> main;
+    std::vector<int> pend(pairCount);
+
+    // Insert pend[0] no início do deque
+    main.push_front(pend[0]);
+
+    // Binary search e insert no deque
+    std::deque<int>::iterator pos =
+        std::lower_bound(main.begin(), main.end(), pend[i]);
+    main.insert(pos, pend[i]);
+
+    // Straggler
+    if (hasStraggler) {
+        std::deque<int>::iterator pos =
+            std::lower_bound(main.begin(), main.end(), straggler);
+        main.insert(pos, straggler);
+    }
+
+    arr = main;
+}
+```
+
+**Principais diferenças:**
+- Main chain: `std::deque<int>` em vez de `std::vector<int>`
+- Pend chain: `std::vector<int>` (auxiliar, pode ser array ou vector)
+- Inserção no início: `push_front()` em vez de `insert(begin())`
+- Iteradores: `std::deque<int>::iterator` em vez de `std::vector<int>::iterator`
+- O `lower_bound` funciona igual para qualquer container com iterador
+  bidirecional (deque e vector têm iteradores de acesso aleatório)
+
+### 4.6 Lidando com straggler (n ímpar)
+
+Se a sequência tem um número ímpar de elementos, um elemento "straggler" sobra
+após o pareamento. Ele é tratado como um pend item extra no final:
+
+```cpp
+bool hasStraggler = (n % 2 == 1);
+int straggler = hasStraggler ? arr[n - 1] : 0;
+
+// ... após inserir todos os pend's ...
+
+if (hasStraggler) {
+    std::deque<int>::iterator pos =
+        std::lower_bound(main.begin(), main.end(), straggler);
+    main.insert(pos, straggler);
+}
+```
+
+O straggler é inserido por último usando binary search, que custa O(log n)
+comparações.
+
+### 4.7 Número de comparações
+
+Ford-Johnson é famoso por minimizar o número de comparações no pior caso:
+
+```
+n = 1:    0 comparações
+n = 2:    1 comparação
+n = 3:    3 comparações
+n = 4:    5 comparações
+n = 5:    7 comparações
+n = 6:   10 comparações
+n = 7:   13 comparações
+n = 8:   16 comparações
+n = 16:  42 comparações
+n = 32: 100 comparações
+```
+
+Para n = 3000, Ford-Johnson faz aproximadamente n log₂ n - n comparações,
+o que é equivalente ao Merge Sort no caso médio, mas com melhor desempenho
+no pior caso.
+
+### 4.8 Medição de tempo
 
 ```cpp
 #include <sys/time.h>
 
-struct timeval start, end;
-gettimeofday(&start, NULL);
+static double getTime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000000.0 + tv.tv_usec;
+}
 
-// ... algoritmo ...
-
-gettimeofday(&end, NULL);
-double elapsed = (end.tv_sec - start.tv_sec) * 1000000.0
-               + (end.tv_usec - start.tv_usec);
+double start = getTime();
+fordJohnsonSortVec(vec);
+double end = getTime();
+double elapsed = end - start;  // em microssegundos
 ```
 
-Ou com `clock()` (CPU time):
+### 4.9 Por que a diferença de tempo entre containers?
 
-```cpp
-#include <ctime>
-clock_t start = clock();
-// ... algoritmo ...
-clock_t end = clock();
-double elapsed = (double)(end - start) / CLOCKS_PER_SEC * 1000000.0;
-```
+`std::vector` vs `std::deque`:
 
-### 4.5 Por que a diferença de tempo entre containers?
+| Operação | vector | deque |
+|----------|--------|-------|
+| Acesso aleatório | O(1) contíguo | O(1) segmentado |
+| Inserção no início | O(n) realoca tudo | O(1) ou O(n) |
+| Inserção no meio | O(n) | O(n) |
+| Inserção no final | O(1) amortizado | O(1) |
+| Cache locality | Excelente ✅ | Boa |
 
-`std::vector` vs `std::deque` (ou `std::list`):
+O Ford-Johnson faz muitas inserções no meio da main chain (via `lower_bound`
++ `insert`), que em ambos os containers é O(n). No entanto:
+- `std::vector` tem melhor localidade de cache (elementos contíguos)
+- `std::deque` é implementado como chunks de memória, então tem mais
+  overhead de ponteiros indiretos
+- Na prática, vector costuma ser mais rápido para sequências de até
+  alguns milhares de elementos
 
-| Operação | vector | deque | list |
-|----------|--------|-------|------|
-| Acesso aleatório | O(1) ✅ | O(1) ✅ | O(n) ❌ |
-| Inserção no meio | O(n) | O(n) | O(1) ✅ |
-| Cache locality | Excelente ✅ | Boa | Ruim ❌ |
-
-O merge sort beneficia-se muito da **cache locality** do vector (elementos em
-posições contíguas na memória), enquanto list (nós espalhados) sofre mais.
-
-### 4.6 Output esperado
+### 4.10 Output esperado (formato exato do subject)
 
 ```
 $> ./PmergeMe 3 5 9 7 4
-Before: 3 5 9 7 4
-After: 3 4 5 7 9
-Time to process a range of 5 elements with std::vector : 0.00031 us
-Time to process a range of 5 elements with std::deque : 0.00014 us
+Before:
+3 5 9 7 4
+After:
+3 4 5 7 9
+Time to process a range of 5 elements with std::vector : 4.00000 us
+Time to process a range of 5 elements with std::deque : 5.00000 us
 ```
+
+**Atenção ao formato:** "Before:" e "After:" saem em linhas separadas dos
+números, e os números mantêm um espaço à direita antes da quebra de linha.
 
 ---
 
@@ -418,9 +679,9 @@ iss >> date >> sep >> value;
 
 Para medição precisa de tempo em microssegundos.
 
-### 5.7 `<cstdlib>` — strtod, atoi (ex00, ex01)
+### 5.7 `<cctype>` — std::isdigit (ex00)
 
-Conversão de string para número.
+Validação de caracteres na data (`std::isdigit`).
 
 ---
 
@@ -436,7 +697,8 @@ std::getline(file, line);  // descarta cabeçalho
 while (std::getline(file, line)) {
     size_t comma = line.find(',');
     std::string date = line.substr(0, comma);
-    double rate = strtod(line.substr(comma + 1).c_str(), NULL);
+    float rate;
+    std::istringstream(line.substr(comma + 1)) >> rate;
     db[date] = rate;
 }
 ```
@@ -461,17 +723,16 @@ if (!(iss >> date >> sep >> value) || sep != "|") {
 std::map<std::string, double>::iterator it = db.lower_bound(date);
 if (it != db.begin())
     --it;  // data inferior mais próxima
-else
-    erro;  // não tem data anterior
+// Se it == begin(), usa a taxa do primeiro registro
 ```
 
 ### 6.4 Tabela dos exercícios
 
 | Ex | Programa | Container | STL usada |
 |----|----------|-----------|-----------|
-| 00 | btc | `std::map` | `<map>`, `<fstream>`, `<sstream>`, `<cstdlib>` |
-| 01 | RPN | `std::stack` | `<stack>`, `<sstream>`, `<cstdlib>` |
-| 02 | PmergeMe | `std::vector` + `std::deque` | `<algorithm>`, `<sys/time.h>`, `<ctime>` |
+| 00 | btc | `std::map` | `<map>`, `<fstream>`, `<sstream>`, `<cctype>` |
+| 01 | RPN | `std::stack` | `<stack>`, `<sstream>`, `<stdexcept>` |
+| 02 | PmergeMe | `std::vector` + `std::deque` | `<algorithm>`, `<sys/time.h>`, `<utility>` |
 
 ### 6.5 Resumo dos módulos
 
