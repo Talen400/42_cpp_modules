@@ -11,3 +11,7 @@ RPN
 PmergeMe
 array
 mutantstack
+
+# subject PDFs
+*.subject.pdf
+cpp09/pt_br.subject.pdf
